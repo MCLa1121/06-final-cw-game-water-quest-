@@ -1,7 +1,8 @@
 // =======================================================
-// Water Match - charity: water Memory Game Prototype
+// Water Match - Completed charity: water Memory Game
 // This file controls the game logic.
-// It handles cards, score, timer, matching, win/lose, and reset.
+// It handles difficulty, cards, score, timer, matching,
+// milestone messages, win/lose states, reset, and confetti.
 // =======================================================
 
 
@@ -9,11 +10,36 @@
 // 1. Game settings
 // =======================================================
 
-// The player has 60 seconds to match all cards
-const TIME_LIMIT = 60;
-
 // There are 8 matching pairs in the game
 const TOTAL_MATCHES = 8;
+
+// Difficulty settings.
+// Each difficulty changes the time limit and wrong-match penalty.
+const difficultySettings = {
+  easy: {
+    label: "Easy",
+    timeLimit: 90,
+    penalty: 0,
+    description: "Easy Mode: 90 seconds and no penalty for wrong matches."
+  },
+
+  normal: {
+    label: "Normal",
+    timeLimit: 60,
+    penalty: 1,
+    description: "Normal Mode: 60 seconds and -1 point for wrong matches."
+  },
+
+  hard: {
+    label: "Hard",
+    timeLimit: 45,
+    penalty: 2,
+    description: "Hard Mode: 45 seconds and -2 points for wrong matches."
+  }
+};
+
+// The game starts on Easy Mode
+let currentDifficulty = "easy";
 
 
 // =======================================================
@@ -28,7 +54,7 @@ let score = 0;
 let matchesFound = 0;
 
 // Tracks how much time is left
-let timeLeft = TIME_LIMIT;
+let timeLeft = difficultySettings[currentDifficulty].timeLimit;
 
 // Tracks whether the game is currently active
 let gameActive = false;
@@ -97,7 +123,37 @@ const cardTypes = [
 
 
 // =======================================================
-// 4. Grab HTML elements
+// 4. Milestone messages
+// This is the Project 6 LevelUp.
+// The game checks these as the player finds matches.
+// =======================================================
+
+const milestoneMessages = [
+  {
+    matchesNeeded: 2,
+    text: "Milestone: 2 pairs matched! Your water mission is underway.",
+    shown: false
+  },
+  {
+    matchesNeeded: 4,
+    text: "Halfway there! You have matched 4 clean-water pairs.",
+    shown: false
+  },
+  {
+    matchesNeeded: 6,
+    text: "Almost done! Just a few more matches to complete the mission.",
+    shown: false
+  },
+  {
+    matchesNeeded: 8,
+    text: "Mission complete! You matched every pair.",
+    shown: false
+  }
+];
+
+
+// =======================================================
+// 5. Grab HTML elements
 // These connect JavaScript to the HTML page.
 // =======================================================
 
@@ -110,8 +166,11 @@ const matchesDisplay = document.getElementById("matches");
 // Timer display
 const timerDisplay = document.getElementById("timer");
 
-// Message display
+// Main message display
 const messageDisplay = document.getElementById("message");
+
+// Milestone message display
+const milestoneDisplay = document.getElementById("milestone-message");
 
 // Start button
 const startButton = document.getElementById("start-game");
@@ -122,9 +181,21 @@ const resetButton = document.getElementById("reset-game");
 // Memory card grid
 const memoryGrid = document.getElementById("memory-grid");
 
+// Difficulty description text
+const difficultyDescription = document.getElementById("difficulty-description");
+
+// Hint text under the buttons
+const hintDisplay = document.getElementById("hint");
+
+// Mission log list
+const missionList = document.getElementById("mission-list");
+
+// Difficulty buttons
+const difficultyButtons = document.querySelectorAll(".difficulty-btn");
+
 
 // =======================================================
-// 5. Show a message on the page
+// 6. Show a message on the page
 // The type changes the color of the message.
 // =======================================================
 
@@ -148,7 +219,122 @@ function showMessage(text, type) {
 
 
 // =======================================================
-// 6. Shuffle cards
+// 7. Add a new mission log item
+// This creates a new <li> element and adds it to the page.
+// This helps satisfy the Project 6 DOM interaction requirement.
+// =======================================================
+
+function addMissionLog(text) {
+  // Create a new list item
+  const newLog = document.createElement("li");
+
+  // Set the text
+  newLog.textContent = text;
+
+  // Add the newest message to the top of the list
+  missionList.prepend(newLog);
+
+  // Keep the log from getting too long.
+  // If there are more than 6 items, remove the last one.
+  if (missionList.children.length > 6) {
+    missionList.removeChild(missionList.lastElementChild);
+  }
+}
+
+
+// =======================================================
+// 8. Reset all milestone messages
+// This lets milestones appear again in a new game.
+// =======================================================
+
+function resetMilestones() {
+  milestoneMessages.forEach(function (milestone) {
+    milestone.shown = false;
+  });
+
+  milestoneDisplay.textContent = "Match clean-water symbols to complete the mission.";
+}
+
+
+// =======================================================
+// 9. Check milestone progress
+// Uses the milestoneMessages array and conditionals.
+// =======================================================
+
+function checkMilestones() {
+  milestoneMessages.forEach(function (milestone) {
+    // If the player reached this milestone and it has not shown yet
+    if (matchesFound >= milestone.matchesNeeded && milestone.shown === false) {
+      // Show the milestone text
+      milestoneDisplay.textContent = milestone.text;
+
+      // Mark it as shown so it does not repeat
+      milestone.shown = true;
+
+      // Also add it to the mission log
+      addMissionLog(milestone.text);
+    }
+  });
+}
+
+
+// =======================================================
+// 10. Update difficulty information on the screen
+// =======================================================
+
+function updateDifficultyDisplay() {
+  const settings = difficultySettings[currentDifficulty];
+
+  // Update timer to match selected mode
+  timeLeft = settings.timeLimit;
+  timerDisplay.textContent = timeLeft;
+
+  // Update description text
+  difficultyDescription.textContent = settings.description;
+
+  // Update hint text based on penalty
+  if (settings.penalty === 0) {
+    hintDisplay.textContent = "Match = +2 points. Wrong match = no penalty on Easy Mode.";
+  } else {
+    hintDisplay.textContent = "Match = +2 points. Wrong match = -" + settings.penalty + " point(s).";
+  }
+
+  // Update selected button style
+  difficultyButtons.forEach(function (button) {
+    if (button.dataset.difficulty === currentDifficulty) {
+      button.classList.add("selected");
+    } else {
+      button.classList.remove("selected");
+    }
+  });
+}
+
+
+// =======================================================
+// 11. Select difficulty
+// This runs when the player clicks Easy, Normal, or Hard.
+// =======================================================
+
+function selectDifficulty(difficulty) {
+  // Do not allow difficulty changes while game is active
+  if (gameActive) {
+    showMessage("Reset the game before changing difficulty.", "danger");
+    return;
+  }
+
+  // Change current difficulty
+  currentDifficulty = difficulty;
+
+  // Update the screen
+  updateDifficultyDisplay();
+
+  // Add to mission log
+  addMissionLog("Difficulty selected: " + difficultySettings[currentDifficulty].label + " Mode.");
+}
+
+
+// =======================================================
+// 12. Shuffle cards
 // This randomizes the order of the cards.
 // =======================================================
 
@@ -170,7 +356,7 @@ function shuffleCards(cards) {
 
 
 // =======================================================
-// 7. Create the card HTML
+// 13. Create the card HTML
 // This function builds one card.
 // =======================================================
 
@@ -229,7 +415,7 @@ function createCard(cardInfo) {
 
 
 // =======================================================
-// 8. Create the board
+// 14. Create the board
 // This duplicates the cards, shuffles them, and displays them.
 // =======================================================
 
@@ -252,7 +438,7 @@ function createBoard() {
 
 
 // =======================================================
-// 9. Flip a card
+// 15. Flip a card
 // This runs when the player clicks a card.
 // =======================================================
 
@@ -293,7 +479,7 @@ function flipCard(card) {
 
 
 // =======================================================
-// 10. Check for a match
+// 16. Check for a match
 // This compares the two flipped cards.
 // =======================================================
 
@@ -314,7 +500,7 @@ function checkForMatch() {
 
 
 // =======================================================
-// 11. Handle a correct match
+// 17. Handle a correct match
 // =======================================================
 
 function handleMatch() {
@@ -335,6 +521,12 @@ function handleMatch() {
   // Show feedback
   showMessage("Match found! Clean water progress grows.", "success");
 
+  // Add a new DOM item to the mission log
+  addMissionLog("Matched a clean-water pair. Score is now " + score + ".");
+
+  // Check milestone messages
+  checkMilestones();
+
   // Reset selected cards
   resetSelectedCards();
 
@@ -346,19 +538,28 @@ function handleMatch() {
 
 
 // =======================================================
-// 12. Handle a wrong match
-// This is the LevelUp challenge: wrong match reduces score.
+// 18. Handle a wrong match
+// This is a challenge feature: wrong match can reduce score.
 // =======================================================
 
 function handleWrongMatch() {
-  // Subtract 1 point, but do not go below 0
-  score = Math.max(0, score - 1);
+  // Get the current difficulty settings
+  const settings = difficultySettings[currentDifficulty];
+
+  // Subtract points based on difficulty, but do not go below 0
+  score = Math.max(0, score - settings.penalty);
 
   // Update score on the screen
   scoreDisplay.textContent = score;
 
-  // Show feedback
-  showMessage("Not a match. Try again! -1 point.", "danger");
+  // Create the right feedback message
+  if (settings.penalty === 0) {
+    showMessage("Not a match. No penalty on Easy Mode.", "danger");
+    addMissionLog("Wrong match, but Easy Mode has no penalty.");
+  } else {
+    showMessage("Not a match. Try again! -" + settings.penalty + " point(s).", "danger");
+    addMissionLog("Wrong match. Lost " + settings.penalty + " point(s).");
+  }
 
   // Wait a little before flipping the cards back
   setTimeout(function () {
@@ -372,7 +573,7 @@ function handleWrongMatch() {
 
 
 // =======================================================
-// 13. Reset selected cards
+// 19. Reset selected cards
 // This clears firstCard and secondCard.
 // =======================================================
 
@@ -384,7 +585,7 @@ function resetSelectedCards() {
 
 
 // =======================================================
-// 14. Start the timer
+// 20. Start the timer
 // Counts down every second.
 // =======================================================
 
@@ -405,17 +606,20 @@ function startTimer() {
 
 
 // =======================================================
-// 15. Start the game
+// 21. Start the game
 // =======================================================
 
 function startGame() {
   // Prevent starting again while game is active
   if (gameActive) return;
 
+  // Get selected difficulty settings
+  const settings = difficultySettings[currentDifficulty];
+
   // Reset game values
   score = 0;
   matchesFound = 0;
-  timeLeft = TIME_LIMIT;
+  timeLeft = settings.timeLimit;
   gameActive = true;
 
   // Reset selected cards
@@ -423,10 +627,17 @@ function startGame() {
   secondCard = null;
   lockBoard = false;
 
+  // Reset milestone messages
+  resetMilestones();
+
   // Update the screen
   scoreDisplay.textContent = score;
   matchesDisplay.textContent = matchesFound;
   timerDisplay.textContent = timeLeft;
+
+  // Clear mission log and add starting message
+  missionList.innerHTML = "";
+  addMissionLog("Game started on " + settings.label + " Mode.");
 
   // Create a fresh board
   createBoard();
@@ -434,6 +645,11 @@ function startGame() {
   // Update buttons
   startButton.disabled = true;
   startButton.textContent = "Game Running...";
+
+  // Disable difficulty buttons while playing
+  difficultyButtons.forEach(function (button) {
+    button.disabled = true;
+  });
 
   // Show starting message
   showMessage("Game started! Find the matching pairs.", "success");
@@ -444,7 +660,7 @@ function startGame() {
 
 
 // =======================================================
-// 16. End the game
+// 22. End the game
 // won is true if the player wins, false if player loses.
 // =======================================================
 
@@ -459,21 +675,30 @@ function endGame(won) {
   startButton.disabled = false;
   startButton.textContent = "Play Again";
 
+  // Re-enable difficulty buttons
+  difficultyButtons.forEach(function (button) {
+    button.disabled = false;
+  });
+
   // If player won
   if (won) {
     showMessage("You matched every pair! Clean water mission complete!", "success");
+    milestoneDisplay.textContent = "You completed the full Water Match mission.";
+    addMissionLog("Win! All pairs matched with a final score of " + score + ".");
     launchConfetti();
   }
 
   // If player lost
   else {
     showMessage("Time is up! Try again and match more pairs.", "danger");
+    milestoneDisplay.textContent = "The mission is not over. Reset and try again.";
+    addMissionLog("Time ran out. Final score: " + score + ".");
   }
 }
 
 
 // =======================================================
-// 17. Reset the game
+// 23. Reset the game
 // =======================================================
 
 function resetGame() {
@@ -483,15 +708,21 @@ function resetGame() {
   // Stop timer
   clearInterval(timerInterval);
 
+  // Get selected difficulty settings
+  const settings = difficultySettings[currentDifficulty];
+
   // Reset values
   score = 0;
   matchesFound = 0;
-  timeLeft = TIME_LIMIT;
+  timeLeft = settings.timeLimit;
 
   // Reset selected cards
   firstCard = null;
   secondCard = null;
   lockBoard = false;
+
+  // Reset milestone messages
+  resetMilestones();
 
   // Update screen
   scoreDisplay.textContent = score;
@@ -502,8 +733,17 @@ function resetGame() {
   startButton.disabled = false;
   startButton.textContent = "Start Game";
 
+  // Re-enable difficulty buttons
+  difficultyButtons.forEach(function (button) {
+    button.disabled = false;
+  });
+
   // Create a new face-down board
   createBoard();
+
+  // Reset mission log
+  missionList.innerHTML = "";
+  addMissionLog("Game reset. Current mode: " + settings.label + ".");
 
   // Show reset message
   showMessage("Game reset. Press Start to begin.", "");
@@ -511,7 +751,7 @@ function resetGame() {
 
 
 // =======================================================
-// 18. Confetti celebration
+// 24. Confetti celebration
 // This creates falling water drops when the player wins.
 // =======================================================
 
@@ -544,14 +784,24 @@ function launchConfetti() {
 
 
 // =======================================================
-// 19. Set up page when it first loads
+// 25. Set up page when it first loads
 // =======================================================
 
 // Create the board immediately
 createBoard();
+
+// Show the default difficulty information
+updateDifficultyDisplay();
 
 // Start button starts the game
 startButton.addEventListener("click", startGame);
 
 // Reset button resets the game
 resetButton.addEventListener("click", resetGame);
+
+// Difficulty buttons change the mode
+difficultyButtons.forEach(function (button) {
+  button.addEventListener("click", function () {
+    selectDifficulty(button.dataset.difficulty);
+  });
+});
