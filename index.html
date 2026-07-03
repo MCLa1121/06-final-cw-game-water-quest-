@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <!-- Makes the layout work better on mobile screens -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Water Match</title>
+
+  <!-- Connects this HTML file to the CSS file -->
+  <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <main class="container">
+
+    <!-- Header with charity: water logo and game title -->
+    <header class="game-header">
+      <img 
+        src="img/cw_logo_horizontal.png" 
+        alt="charity: water logo" 
+        class="logo"
+      >
+
+      <div class="title-text">
+        <h1>Water Match</h1>
+        <p class="game-instructions">
+          Flip cards and match the clean-water pairs before time runs out.
+        </p>
+      </div>
+    </header>
+
+    <!-- Score, moves, and timer display -->
+    <section class="stats">
+      <p>Score: <span id="score">0</span></p>
+      <p>Matches: <span id="matches">0</span>/8</p>
+      <p>Time Left: <span id="timer">60</span>s</p>
+    </section>
+
+    <!-- Message area for feedback -->
+    <div id="message" class="message" aria-live="polite">
+      Press Start to begin.
+    </div>
+
+    <!-- JavaScript will create the memory cards inside this grid -->
+    <section class="memory-grid" id="memory-grid"></section>
+
+    <!-- Game control buttons -->
+    <div class="controls">
+      <button id="start-game">Start Game</button>
+      <button id="reset-game">Reset</button>
+    </div>
+
+    <!-- Short instruction for the player -->
+    <p class="hint">
+      Match = +2 points. Wrong match = -1 point.
+    </p>
+
+  </main>
+
+  <!-- Connects this HTML file to the JavaScript file -->
+  <script src="script.js"></script>
+</body>
+</html>
