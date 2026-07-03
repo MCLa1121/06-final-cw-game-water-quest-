@@ -8,6 +8,15 @@
 
   <title>Water Match</title>
 
+  <!-- Google Font: Montserrat is a close web-friendly substitute.
+       Avenir is listed as a fallback in the CSS if the computer has it. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" 
+    rel="stylesheet"
+  >
+
   <!-- Connects this HTML file to the CSS file -->
   <link href="style.css" rel="stylesheet" type="text/css">
 </head>
@@ -26,21 +35,42 @@
       <div class="title-text">
         <h1>Water Match</h1>
         <p class="game-instructions">
-          Flip cards and match the clean-water pairs before time runs out.
+          Flip cards and match clean-water pairs before time runs out.
         </p>
       </div>
     </header>
 
-    <!-- Score, moves, and timer display -->
+    <!-- Difficulty mode section -->
+    <section class="difficulty-panel" aria-label="Choose difficulty">
+      <h2>Choose Difficulty</h2>
+
+      <div class="difficulty-buttons">
+        <!-- data-difficulty lets JavaScript know which mode was clicked -->
+        <button class="difficulty-btn selected" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="normal">Normal</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+      </div>
+
+      <p id="difficulty-description">
+        Easy Mode: 90 seconds and no penalty for wrong matches.
+      </p>
+    </section>
+
+    <!-- Score, matches, and timer display -->
     <section class="stats">
       <p>Score: <span id="score">0</span></p>
       <p>Matches: <span id="matches">0</span>/8</p>
-      <p>Time Left: <span id="timer">60</span>s</p>
+      <p>Time Left: <span id="timer">90</span>s</p>
     </section>
 
     <!-- Message area for feedback -->
     <div id="message" class="message" aria-live="polite">
       Press Start to begin.
+    </div>
+
+    <!-- Milestone message area -->
+    <div id="milestone-message" class="milestone-message" aria-live="polite">
+      Match clean-water symbols to complete the mission.
     </div>
 
     <!-- JavaScript will create the memory cards inside this grid -->
@@ -53,9 +83,36 @@
     </div>
 
     <!-- Short instruction for the player -->
-    <p class="hint">
-      Match = +2 points. Wrong match = -1 point.
+    <p class="hint" id="hint">
+      Match = +2 points. Wrong match = no penalty on Easy Mode.
     </p>
+
+    <!-- Mission Log: JavaScript will add list items here during the game.
+         This satisfies the Project 6 requirement to add/change DOM elements. -->
+    <section class="mission-log">
+      <h2>Mission Log</h2>
+      <ul id="mission-list">
+        <li>Choose a difficulty and press Start to begin your water mission.</li>
+      </ul>
+    </section>
+
+    <!-- charity: water call-to-action section -->
+    <footer class="game-footer">
+      <h2>Keep the mission going</h2>
+      <p>
+        This game is inspired by charity: water’s mission to help bring clean and safe water to communities.
+      </p>
+
+      <div class="footer-links">
+        <a href="https://www.charitywater.org/" target="_blank" rel="noopener noreferrer">
+          Learn More
+        </a>
+
+        <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener noreferrer">
+          Donate
+        </a>
+      </div>
+    </footer>
 
   </main>
 
