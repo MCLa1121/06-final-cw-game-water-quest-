@@ -13,6 +13,11 @@
 // There are 8 matching pairs in the game
 const TOTAL_MATCHES = 8;
 
+// This controls how long wrong cards stay visible before flipping back.
+// Smaller number = faster response.
+// 450ms is faster than the old 800ms, but still gives players time to see the cards.
+const WRONG_MATCH_DELAY = 450;
+
 // Difficulty settings.
 // Each difficulty changes the time limit and wrong-match penalty.
 const difficultySettings = {
@@ -221,7 +226,6 @@ function showMessage(text, type) {
 // =======================================================
 // 7. Add a new mission log item
 // This creates a new <li> element and adds it to the page.
-// This helps satisfy the Project 6 DOM interaction requirement.
 // =======================================================
 
 function addMissionLog(text) {
@@ -234,8 +238,7 @@ function addMissionLog(text) {
   // Add the newest message to the top of the list
   missionList.prepend(newLog);
 
-  // Keep the log from getting too long.
-  // If there are more than 6 items, remove the last one.
+  // Keep the log from getting too long
   if (missionList.children.length > 6) {
     missionList.removeChild(missionList.lastElementChild);
   }
@@ -265,13 +268,13 @@ function checkMilestones() {
   milestoneMessages.forEach(function (milestone) {
     // If the player reached this milestone and it has not shown yet
     if (matchesFound >= milestone.matchesNeeded && milestone.shown === false) {
-      // Show the milestone text
+      // Show milestone text
       milestoneDisplay.textContent = milestone.text;
 
       // Mark it as shown so it does not repeat
       milestone.shown = true;
 
-      // Also add it to the mission log
+      // Add it to the mission log
       addMissionLog(milestone.text);
     }
   });
@@ -316,7 +319,7 @@ function updateDifficultyDisplay() {
 // =======================================================
 
 function selectDifficulty(difficulty) {
-  // Do not allow difficulty changes while game is active
+  // Do not allow difficulty changes while the game is active
   if (gameActive) {
     showMessage("Reset the game before changing difficulty.", "danger");
     return;
@@ -458,7 +461,7 @@ function flipCard(card) {
   // Do nothing if card is already matched
   if (card.classList.contains("matched")) return;
 
-  // Flip the card visually
+  // Flip the card visually right away
   card.classList.add("flipped");
 
   // If this is the first card flipped, save it
@@ -518,7 +521,7 @@ function handleMatch() {
   scoreDisplay.textContent = score;
   matchesDisplay.textContent = matchesFound;
 
-  // Show feedback
+  // Show feedback immediately
   showMessage("Match found! Clean water progress grows.", "success");
 
   // Add a new DOM item to the mission log
@@ -549,7 +552,7 @@ function handleWrongMatch() {
   // Subtract points based on difficulty, but do not go below 0
   score = Math.max(0, score - settings.penalty);
 
-  // Update score on the screen
+  // Update score on the screen immediately
   scoreDisplay.textContent = score;
 
   // Create the right feedback message
@@ -561,14 +564,15 @@ function handleWrongMatch() {
     addMissionLog("Wrong match. Lost " + settings.penalty + " point(s).");
   }
 
-  // Wait a little before flipping the cards back
+  // Wait briefly before flipping the cards back.
+  // This is shorter than before, so the game feels faster.
   setTimeout(function () {
     firstCard.classList.remove("flipped");
     secondCard.classList.remove("flipped");
 
     // Reset selected cards after they flip back
     resetSelectedCards();
-  }, 800);
+  }, WRONG_MATCH_DELAY);
 }
 
 
