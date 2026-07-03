@@ -16,7 +16,11 @@
 body {
   margin: 0;
   padding: 30px;
-  font-family: Arial, sans-serif;
+
+  /* Montserrat is loaded from Google Fonts.
+     Avenir is included as a fallback if available on the user's computer. */
+  font-family: "Montserrat", Avenir, Arial, sans-serif;
+
   background: linear-gradient(135deg, #2E9DF7, #8BD1CB);
   color: #222;
   min-height: 100vh;
@@ -24,7 +28,7 @@ body {
 
 /* Main game card */
 .container {
-  max-width: 850px;
+  max-width: 900px;
   margin: 30px auto;
   background-color: #ffffff;
   padding: 35px;
@@ -53,6 +57,7 @@ body {
 h1 {
   margin: 0;
   font-size: 38px;
+  font-weight: 800;
   color: #111;
 }
 
@@ -61,6 +66,56 @@ h1 {
   margin: 8px 0 0;
   font-size: 18px;
   color: #333;
+}
+
+/* ======================================================
+   Difficulty panel
+   ====================================================== */
+
+.difficulty-panel {
+  background-color: #f7f7f7;
+  border: 3px solid #111;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.difficulty-panel h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+.difficulty-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.difficulty-btn {
+  background-color: #ffffff;
+  color: #111;
+  border: 3px solid #111;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.difficulty-btn:hover {
+  background-color: #FFC907;
+}
+
+.difficulty-btn.selected {
+  background-color: #FFC907;
+  color: #111;
+}
+
+#difficulty-description {
+  margin: 12px 0 0;
+  font-weight: 600;
 }
 
 /* Score, matches, and timer box */
@@ -79,20 +134,33 @@ h1 {
 .stats p {
   margin: 0;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 800;
 }
 
 /* Message / feedback box */
 .message {
-  min-height: 40px;
-  margin-bottom: 20px;
+  min-height: 42px;
+  margin-bottom: 12px;
   padding: 12px;
   text-align: center;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 800;
   background-color: #f5f5f5;
   border-radius: 10px;
   border-left: 6px solid #2E9DF7;
+}
+
+/* Milestone message box */
+.milestone-message {
+  min-height: 38px;
+  margin-bottom: 20px;
+  padding: 10px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  background-color: #fff8d6;
+  border: 2px solid #FFC907;
+  border-radius: 10px;
 }
 
 /* Green success message */
@@ -164,7 +232,7 @@ h1 {
   background-color: #FFC907;
   color: #111;
   font-size: 34px;
-  font-weight: bold;
+  font-weight: 800;
 }
 
 /* Card face shown after flipping */
@@ -210,7 +278,7 @@ h1 {
   border: 3px solid #111;
   padding: 14px 28px;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 800;
   border-radius: 10px;
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
@@ -224,7 +292,8 @@ h1 {
 }
 
 /* Disabled button style */
-.controls button:disabled {
+.controls button:disabled,
+.difficulty-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -235,7 +304,82 @@ h1 {
   text-align: center;
   margin-top: 18px;
   font-size: 15px;
+  font-weight: 600;
   color: #555;
+}
+
+/* ======================================================
+   Mission Log
+   ====================================================== */
+
+.mission-log {
+  margin-top: 28px;
+  background-color: #f7f7f7;
+  border-radius: 14px;
+  border: 3px solid #111;
+  padding: 18px;
+}
+
+.mission-log h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+#mission-list {
+  margin: 0;
+  padding-left: 22px;
+}
+
+#mission-list li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+/* ======================================================
+   Footer / charity: water CTA
+   ====================================================== */
+
+.game-footer {
+  margin-top: 28px;
+  text-align: center;
+  background-color: #111;
+  color: white;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.game-footer h2 {
+  margin-top: 0;
+  color: #FFC907;
+}
+
+.game-footer p {
+  max-width: 620px;
+  margin: 0 auto 18px;
+  line-height: 1.5;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  background-color: #FFC907;
+  color: #111;
+  text-decoration: none;
+  font-weight: 800;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 3px solid #FFC907;
+}
+
+.footer-links a:hover {
+  background-color: #2E9DF7;
+  color: white;
+  border-color: #2E9DF7;
 }
 
 /* ======================================================
@@ -313,7 +457,12 @@ h1 {
     font-size: 32px;
   }
 
-  .controls button {
+  .controls button,
+  .difficulty-btn {
+    width: 100%;
+  }
+
+  .footer-links a {
     width: 100%;
   }
 }
